@@ -18,6 +18,12 @@ const (
 	TokenURL = "https://accounts.spotify.com/api/token"
 )
 
+const (
+	// ShowDialogField is the URL parameter that forces previously authenticated users
+	// to verify the app with Spotify again.
+	ShowDialogField = "show_dialog"
+)
+
 // Scopes let you specify exactly which types of data your application wants to access.
 // The set of scopes you pass in your authentication request determines what access the
 // permissions the user is asked to grant.
@@ -129,6 +135,15 @@ func (a *Authenticator) SetAuthInfo(clientID, secretKey string) {
 // http://tools.ietf.org/html/rfc6749#section-10.12.
 func (a Authenticator) AuthURL(state string) string {
 	return a.config.AuthCodeURL(state)
+}
+
+// AuthURLWithDialog returns the same URL as AuthURL, but sets show_dialog to true
+func (a Authenticator) AuthURLWithDialog(state string, showDialog bool) string {
+	if showDialog {
+		return a.config.AuthCodeURL(state, oauth2.SetAuthURLParam(ShowDialogField, "true"))
+	}
+
+	return a.AuthURL(state)
 }
 
 // Token pulls an authorization code from an HTTP request and attempts to exchange
